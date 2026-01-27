@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Finanças Pro | Gestor</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="theme-color" content="#121212">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+    <div class="container">
+        <div id="saldo-flutuante" class="floating-balance">
+            <small>Saldo em Conta</small>
+            <span id="valor-flutuante">R$ 0,00</span>
+        </div>
+
+        <nav class="abas">
+            <button class="tab-btn active" onclick="abrirAba('lancamentos', this)">
+                <i class="fas fa-plus-circle"></i><br>Lançar
+            </button>
+            <button class="tab-btn" onclick="abrirAba('relatorios', this)">
+                <i class="fas fa-chart-pie"></i><br>Análise
+            </button>
+            <button class="tab-btn" onclick="abrirAba('metas', this)">
+                <i class="fas fa-bullseye"></i><br>Metas
+            </button>
+        </nav>
+
+        <div id="lancamentos" class="tab-content active">
+            <h1>✍️ Novo Registro</h1>
+            <div class="form-container">
+                <label>Categoria:</label>
+                <select id="categoria">
+                    <option value="Alimentação">🛒 Alimentação</option>
+                    <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
+                    <option value="Transporte">🚗 Transporte</option>
+                    <option value="Moradia">🏠 Moradia</option>
+                    <option value="Lazer">🍦 Lazer</option>
+                    <option value="Saúde">💊 Saúde</option>
+                    <option value="Educação">📚 Educação</option>
+                    <option value="Outros">⚙️ Outros</option>
+                </select>
+                <input type="text" id="descricao" placeholder="Descrição (ex: Uber, Mercado)">
+                <input type="number" id="valor" step="0.01" placeholder="Valor R$ 0,00">
+                <input type="date" id="data">
+                <select id="tipo">
+                    <option value="gasto" selected>Gasto (-)</option>
+                    <option value="ganho">Ganho (+)</option>
+                </select>
+                <button class="btn-add" onclick="adicionarTransacao()">Salvar Lançamento</button>
+            </div>
+        </div>
+
+        <div id="relatorios" class="tab-content">
+            <h1>📊 Análise Geral</h1>
+            <div class="stats">
+                <p>Balanço Total</p>
+                <span id="saldo-total">R$ 0,00</span>
+            </div>
+            <div id="progresso-metas"></div>
+            <div class="chart-container">
+                <canvas id="meuGrafico"></canvas>
+            </div>
+            <div class="acoes">
+                <button class="btn-export" onclick="exportarCSV()">Exportar</button>
+                <button class="btn-reset-month" onclick="zerarMes()">Zerar Mês</button>
+                <button class="btn-clear" onclick="limparDados()">Reset Tudo</button>
+            </div>
+        </div>
+
+        <div id="metas" class="tab-content">
+            <h1>🎯 Configurações</h1>
+            <div class="config-card">
+                <label><i class="fas fa-university"></i> Saldo Inicial da Conta:</label>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <input type="number" id="inputSaldoInicial" step="0.01">
+                    <button class="btn-save-mini" onclick="salvarSaldoInicial()">Ajustar</button>
+                </div>
+            </div>
+            <h3 style="margin-top: 25px;">Minhas Metas Mensais</h3>
+            <div id="lista-config-metas" class="form-container">
+                </div>
+            <button class="btn-add" onclick="salvarMetas()">Guardar Metas</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
