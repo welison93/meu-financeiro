@@ -2,11 +2,13 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gestor Pro | Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Gestor Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/mD4mF5Xj/gestor-pro-icon.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -17,16 +19,16 @@
         <div class="card-senha">
             <h2 class="logo-text">GESTOR PRO</h2>
             <div id="boas-vindas-user"></div>
-            <input type="password" id="inputSenha" placeholder="Senha">
-            <button class="btn-add" id="btn-login-acao">Entrar</button>
+            <input type="password" id="inputSenha" placeholder="Senha" inputmode="numeric">
+            <button class="btn-add" id="btn-login-acao" style="width: 100%;">Entrar</button>
         </div>
     </div>
 
-    <div id="modal-assistente" class="overlay-senha" style="display:none; z-index: 9500;">
+    <div id="modal-assistente" class="overlay-senha" style="display:none; z-index: 9999;">
         <div class="card-senha">
             <h3 style="color: var(--warning)"><i class="fas fa-robot"></i> Assistente Pro</h3>
             <p id="msg-assistente" style="font-size: 0.9rem; line-height: 1.6; margin: 20px 0;"></p>
-            <button class="btn-add" onclick="fecharAssistente()">Obrigado!</button>
+            <button class="btn-add" onclick="fecharAssistente()" style="width: 100%;">Entendido!</button>
         </div>
     </div>
 
@@ -34,14 +36,11 @@
 
     <div class="container">
         <header class="app-header">
-            <span class="logo-text" style="cursor:pointer">GESTOR PRO</span>
+            <span class="logo-text" id="logo-main">GESTOR PRO</span>
             <button class="btn-theme" onclick="toggleTheme()"><i class="fas fa-adjust"></i></button>
         </header>
 
-        <div id="alertas-vencimento"></div>
-
         <div class="container-scroll">
-            
             <div id="lancamentos" class="tab-content active">
                 <div class="stats-mini">
                     <div><small>Saldo Conta</small><br><b id="saldo-topo">R$ 0,00</b></div>
@@ -51,7 +50,7 @@
                 <h3>✍️ Novo Lançamento</h3>
                 <div class="form-container">
                     <select id="categoria"></select>
-                    <input type="text" id="descricao" placeholder="Descrição">
+                    <input type="text" id="descricao" placeholder="O que você comprou?">
                     <div style="display: flex; gap: 10px;">
                         <input type="number" id="valor" placeholder="R$ 0,00" style="flex: 2;">
                         <select id="tipo" style="flex: 1;">
@@ -72,76 +71,59 @@
                     <button id="btn-salvar" class="btn-add" onclick="adicionarTransacao()">Salvar Lançamento</button>
                 </div>
 
-                <h3 style="margin-top: 25px;">🕒 Histórico Recente</h3>
+                <h3 style="margin-top: 25px;">🕒 Histórico</h3>
                 <div id="lista-historico"></div>
             </div>
 
             <div id="cartao" class="tab-content">
-                <h1 id="titulo-cartao">💳 Cartões</h1>
-                <div class="form-container" style="background: var(--glass); padding: 15px; border-radius: 20px;">
+                <h1>💳 Cartões</h1>
+                <div class="form-container config-card">
                     <input type="text" id="nome-cartao" placeholder="Nome do Cartão">
-                    <input type="number" id="limite-cartao" placeholder="Limite">
+                    <input type="number" id="limite-cartao" placeholder="Limite Total">
                     <input type="number" id="vencimento-cartao" placeholder="Dia Vencimento">
                     <button id="btn-salvar-cartao" class="btn-add" onclick="adicionarNovoCartao()">Criar Cartão</button>
                 </div>
                 <div id="lista-cartoes-container" style="margin-top:20px;"></div>
-                <h3 style="margin-top:30px">🛍️ Compras Parceladas</h3>
-                <div class="form-container">
+                <h3 style="margin-top:30px">🛍️ Parcelamentos</h3>
+                <div class="form-container config-card">
                     <select id="select-cartao-compra"></select>
-                    <input type="text" id="desc-parcela" placeholder="Descrição da compra">
+                    <input type="text" id="desc-parcela" placeholder="Descrição">
                     <input type="number" id="valor-total-parcela" placeholder="Valor Total">
-                    <input type="number" id="qtd-parcelas" placeholder="Parcelas (Ex: 10)">
+                    <input type="number" id="qtd-parcelas" placeholder="Vezes">
                     <button class="btn-add" onclick="lancarCompraParcelada()">Lançar Parcelas</button>
                 </div>
             </div>
 
-            <div id="cofrinhos" class="tab-content">
-                <h1>🐷 Cofrinhos</h1>
-                <div class="form-container" style="background: var(--glass); padding: 15px; border-radius: 20px;">
-                    <input type="text" id="nome-cofre" placeholder="Objetivo">
-                    <input type="number" id="meta-cofre" placeholder="Valor da Meta">
-                    <button class="btn-add" onclick="criarCofrinho()">Criar Objetivo</button>
-                </div>
-                <div id="lista-cofrinhos" style="margin-top: 20px;"></div>
-            </div>
-
             <div id="relatorios" class="tab-content">
-                <h1>📊 Saúde Financeira</h1>
+                <h1>📊 Relatórios</h1>
                 <div class="stats-mini">
-                    <div><small>Economia Real</small><br><b id="valor-economia">R$ 0,00</b></div>
-                    <div><small>% Cartão/Renda</small><br><b id="valor-comprometimento">0%</b></div>
+                    <div><small>Economia</small><br><b id="valor-economia">R$ 0,00</b></div>
+                    <div><small>% Cartão</small><br><b id="valor-comprometimento">0%</b></div>
                 </div>
                 <div class="chart-container"><canvas id="meuGrafico"></canvas></div>
-                <button class="btn-add" onclick="exportarPDF()" style="width: 100%; margin-top: 20px;">
-                    <i class="fas fa-file-pdf"></i> Exportar PDF
-                </button>
+                <button class="btn-add" onclick="exportarPDF()" style="width: 100%; margin-top: 20px;">Gerar PDF</button>
             </div>
 
             <div id="metas" class="tab-content">
                 <h1>⚙️ Ajustes</h1>
                 <div class="config-card">
-                    <label>Saldo Inicial em Conta:</label>
+                    <label>Saldo Inicial:</label>
                     <input type="number" id="inputSaldoInicial">
-                    <button class="btn-glass" onclick="salvarSaldoInicial()" style="width:100%; margin-top:10px">Atualizar Saldo</button>
+                    <button class="btn-glass" onclick="salvarSaldoInicial()" style="width:100%; margin-top:10px">Salvar</button>
                 </div>
-                <div class="config-card" style="margin-top: 20px;">
-                    <h3>💾 Backup</h3>
-                    <button class="btn-glass" onclick="gerarBackup()" style="width:100%; margin-bottom:10px">Copiar Código de Backup</button>
+                <div class="config-card" style="margin-top:20px">
+                    <button class="btn-glass" onclick="gerarBackup()" style="width:100%; margin-bottom:10px">Backup (Copiar)</button>
                     <button class="btn-glass" onclick="restaurarBackup()" style="width:100%">Restaurar Dados</button>
                 </div>
-                <button class="btn-danger-action" onclick="limparDados()" style="width: 100%; margin-top: 20px;">Resetar Aplicativo</button>
+                <button class="btn-danger-action" onclick="limparDados()" style="width: 100%; margin-top: 20px;">Resetar Tudo</button>
             </div>
-
         </div>
 
-        <div class="assistente-bolha" onclick="abrirDicasAssistente()">
-            <i class="fas fa-robot"></i>
-        </div>
+        <div class="assistente-bolha" onclick="abrirDicasAssistente()"><i class="fas fa-robot"></i></div>
 
         <nav class="nav-bottom">
             <button class="nav-item active" onclick="abrirAba('lancamentos', this)"><i class="fas fa-home"></i></button>
             <button class="nav-item" onclick="abrirAba('cartao', this)"><i class="fas fa-credit-card"></i></button>
-            <button class="nav-item" onclick="abrirAba('cofrinhos', this)"><i class="fas fa-piggy-bank"></i></button>
             <button class="nav-item" onclick="abrirAba('relatorios', this)"><i class="fas fa-chart-line"></i></button>
             <button class="nav-item" onclick="abrirAba('metas', this)"><i class="fas fa-cog"></i></button>
         </nav>
