@@ -3,88 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finanças Pro | Gestor</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Gestor Pro | Elite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <meta name="theme-color" content="#121212">
-    <meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
+
+    <div id="tela-bloqueio" class="overlay-senha">
+        <div class="card-senha" id="area-login">
+            <h2 class="logo-text"><i class="fas fa-shield-halved"></i> Gestor Pro</h2>
+            <div id="boas-vindas-user"></div>
+            <input type="password" id="inputSenha" placeholder="Digite sua senha">
+            <button class="btn-add" onclick="verificarSenha()">Entrar</button>
+            <p id="link-primeiro-acesso" onclick="mostrarCadastro()">Novo por aqui? Criar conta</p>
+        </div>
+    </div>
+
+    <div id="modal-cadastro" class="overlay-senha" style="display:none;">
+        <div class="card-senha">
+            <h3>✨ Criar Perfil</h3>
+            <input type="text" id="novoUser" placeholder="Seu Nome">
+            <input type="password" id="novaSenha" placeholder="Escolha uma Senha">
+            <button class="btn-add" onclick="salvarCadastro()">Configurar App</button>
+        </div>
+    </div>
+
+    <div id="modal-confirm" class="overlay-senha" style="display:none; z-index: 6000;">
+        <div class="card-senha">
+            <h3 id="confirm-titulo">Aviso</h3>
+            <p id="confirm-msg" style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 20px;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-cancelar" class="btn-glass">Cancelar</button>
+                <button id="btn-confirmar" class="btn-danger-action">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-assistente" class="overlay-senha" style="display:none; z-index: 5500;">
+        <div class="card-senha">
+            <h3 style="color: var(--warning)"><i class="fas fa-robot"></i> Assistente</h3>
+            <p id="msg-assistente" style="font-size: 0.9rem; line-height: 1.6; margin: 20px 0; color: #fff;"></p>
+            <button class="btn-add" onclick="fecharAssistente()">Entendido!</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast-aviso"></div>
+
     <div class="container">
+        <div id="assistente-btn" class="assistente-bolha" onclick="abrirDicasAssistente()">
+            <i class="fas fa-robot"></i>
+        </div>
+
         <div id="saldo-flutuante" class="floating-balance">
-            <small>Saldo em Conta</small>
+            <small>Saldo Disponível</small>
             <span id="valor-flutuante">R$ 0,00</span>
         </div>
 
         <nav class="abas">
-            <button class="tab-btn active" onclick="abrirAba('lancamentos', this)">
-                <i class="fas fa-plus-circle"></i><br>Lançar
-            </button>
-            <button class="tab-btn" onclick="abrirAba('relatorios', this)">
-                <i class="fas fa-chart-pie"></i><br>Análise
-            </button>
-            <button class="tab-btn" onclick="abrirAba('metas', this)">
-                <i class="fas fa-bullseye"></i><br>Metas
-            </button>
+            <button class="tab-btn active" onclick="abrirAba('lancamentos', this)"><i class="fas fa-wallet"></i><br>Início</button>
+            <button class="tab-btn" onclick="abrirAba('cartao', this)"><i class="fas fa-credit-card"></i><br>Cartões</button>
+            <button class="tab-btn" onclick="abrirAba('relatorios', this)"><i class="fas fa-chart-pie"></i><br>Análise</button>
+            <button class="tab-btn" onclick="abrirAba('metas', this)"><i class="fas fa-sliders-h"></i><br>Ajustes</button>
         </nav>
 
         <div id="lancamentos" class="tab-content active">
-            <h1>✍️ Novo Registro</h1>
+            <h1 id="titulo-form">✍️ Lançamento</h1>
             <div class="form-container">
-                <label>Categoria:</label>
-                <select id="categoria">
-                    <option value="Alimentação">🛒 Alimentação</option>
-                    <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
-                    <option value="Transporte">🚗 Transporte</option>
-                    <option value="Moradia">🏠 Moradia</option>
-                    <option value="Lazer">🍦 Lazer</option>
-                    <option value="Saúde">💊 Saúde</option>
-                    <option value="Educação">📚 Educação</option>
-                    <option value="Outros">⚙️ Outros</option>
-                </select>
-                <input type="text" id="descricao" placeholder="Descrição (ex: Uber, Mercado)">
-                <input type="number" id="valor" step="0.01" placeholder="Valor R$ 0,00">
+                <select id="categoria"></select>
+                <input type="text" id="descricao" placeholder="Descrição">
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="valor" step="0.01" placeholder="R$ 0,00" style="flex: 2;">
+                    <select id="tipo" style="flex: 1;">
+                        <option value="gasto">Saída</option>
+                        <option value="ganho">Entrada</option>
+                    </select>
+                </div>
                 <input type="date" id="data">
-                <select id="tipo">
-                    <option value="gasto" selected>Gasto (-)</option>
-                    <option value="ganho">Ganho (+)</option>
-                </select>
-                <button class="btn-add" onclick="adicionarTransacao()">Salvar Lançamento</button>
+                <button id="btn-salvar" class="btn-add" onclick="adicionarTransacao()">Salvar</button>
+            </div>
+            <h3 style="margin-top: 30px;">🕒 Recentes</h3>
+            <div id="lista-historico" class="historico-lista"></div>
+        </div>
+
+        <div id="cartao" class="tab-content">
+            <h1>💳 Seus Cartões</h1>
+            <div class="config-card">
+                <h3>+ Novo Cartão</h3>
+                <input type="text" id="nome-cartao" placeholder="Nome (Ex: Nubank)">
+                <input type="number" id="limite-cartao" placeholder="Limite">
+                <button class="btn-add" style="margin-top:10px" onclick="adicionarNovoCartao()">Criar</button>
+            </div>
+            <div id="lista-cartoes-container" style="margin-top:20px;"></div>
+            
+            <h3 style="margin-top:30px">🛍️ Nova Compra Parcelada</h3>
+            <div class="form-container">
+                <select id="select-cartao-compra"></select>
+                <input type="text" id="desc-parcela" placeholder="O que comprou?">
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="valor-total-parcela" placeholder="Total" style="flex: 1;">
+                    <input type="number" id="qtd-parcelas" placeholder="Vezes" style="flex: 1;">
+                </div>
+                <input type="date" id="data-primeira-parcela">
+                <button class="btn-add" onclick="lancarCompraParcelada()">Lançar Parcelas</button>
             </div>
         </div>
 
         <div id="relatorios" class="tab-content">
-            <h1>📊 Análise Geral</h1>
-            <div class="stats">
-                <p>Balanço Total</p>
-                <span id="saldo-total">R$ 0,00</span>
-            </div>
+            <h1>📊 Relatórios</h1>
+            <div class="stats"><p>Saldo em Conta</p><span id="saldo-total">R$ 0,00</span></div>
+            <div class="chart-container"><canvas id="meuGrafico"></canvas></div>
             <div id="progresso-metas"></div>
-            <div class="chart-container">
-                <canvas id="meuGrafico"></canvas>
-            </div>
             <div class="acoes">
                 <button class="btn-export" onclick="exportarCSV()">Exportar</button>
-                <button class="btn-reset-month" onclick="zerarMes()">Zerar Mês</button>
-                <button class="btn-clear" onclick="limparDados()">Reset Tudo</button>
+                <button class="btn-clear" onclick="limparDados()">Resetar</button>
             </div>
         </div>
 
         <div id="metas" class="tab-content">
-            <h1>🎯 Configurações</h1>
+            <h1>⚙️ Ajustes</h1>
             <div class="config-card">
-                <label><i class="fas fa-university"></i> Saldo Inicial da Conta:</label>
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <input type="number" id="inputSaldoInicial" step="0.01">
-                    <button class="btn-save-mini" onclick="salvarSaldoInicial()">Ajustar</button>
+                <label>Saldo Inicial:</label>
+                <div style="display:flex; gap:10px; margin-top:10px">
+                    <input type="number" id="inputSaldoInicial" step="0.01" style="flex: 1;">
+                    <button class="btn-glass" onclick="salvarSaldoInicial()">Ok</button>
                 </div>
             </div>
-            <h3 style="margin-top: 25px;">Minhas Metas Mensais</h3>
-            <div id="lista-config-metas" class="form-container">
+            <h3 style="margin-top:30px">📁 Categorias com Emojis</h3>
+            <div class="form-container">
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="nova-cat-nome" placeholder="Ex: 🍔 Comida" style="flex: 1;">
+                    <button class="btn-add" onclick="adicionarNovaCategoria()" style="margin:0; width:50px;">+</button>
                 </div>
-            <button class="btn-add" onclick="salvarMetas()">Guardar Metas</button>
+                <div id="lista-categorias-editavel" style="margin-top:15px;"></div>
+            </div>
+            <h3 style="margin-top:30px">🎯 Definir Metas</h3>
+            <div id="lista-config-metas" class="form-container"></div>
+            <button class="btn-add" onclick="salvarMetas()">Gravar Metas</button>
         </div>
     </div>
     <script src="script.js"></script>
