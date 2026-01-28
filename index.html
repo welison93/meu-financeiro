@@ -3,145 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gestor Pro | Elite</title>
+    <title>Gestor Pro | Premium</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
-<body>
+<body class="dark-mode">
 
     <div id="tela-bloqueio" class="overlay-senha">
-        <div class="card-senha" id="area-login">
-            <h2 class="logo-text"><i class="fas fa-shield-halved"></i> Gestor Pro</h2>
+        <div class="card-senha">
+            <h2 class="logo-text">GESTOR PRO</h2>
             <div id="boas-vindas-user"></div>
-            <input type="password" id="inputSenha" placeholder="Digite sua senha">
-            <button class="btn-add" onclick="verificarSenha()">Entrar</button>
-            <p id="link-primeiro-acesso" onclick="mostrarCadastro()">Novo por aqui? Criar conta</p>
+            <input type="password" id="inputSenha" placeholder="Senha">
+            <button class="btn-add" id="btn-login-acao">Entrar</button>
         </div>
     </div>
 
-    <div id="modal-cadastro" class="overlay-senha" style="display:none;">
+    <div id="modal-assistente" class="overlay-senha" style="display:none; z-index: 9500;">
         <div class="card-senha">
-            <h3>✨ Criar Perfil</h3>
-            <input type="text" id="novoUser" placeholder="Seu Nome">
-            <input type="password" id="novaSenha" placeholder="Escolha uma Senha">
-            <button class="btn-add" onclick="salvarCadastro()">Configurar App</button>
-        </div>
-    </div>
-
-    <div id="modal-confirm" class="overlay-senha" style="display:none; z-index: 6000;">
-        <div class="card-senha">
-            <h3 id="confirm-titulo">Aviso</h3>
-            <p id="confirm-msg" style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 20px;"></p>
-            <div style="display: flex; gap: 10px;">
-                <button id="btn-cancelar" class="btn-glass">Cancelar</button>
-                <button id="btn-confirmar" class="btn-danger-action">Confirmar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-assistente" class="overlay-senha" style="display:none; z-index: 5500;">
-        <div class="card-senha">
-            <h3 style="color: var(--warning)"><i class="fas fa-robot"></i> Assistente</h3>
-            <p id="msg-assistente" style="font-size: 0.9rem; line-height: 1.6; margin: 20px 0; color: #fff;"></p>
-            <button class="btn-add" onclick="fecharAssistente()">Entendido!</button>
+            <h3 style="color: var(--warning)"><i class="fas fa-robot"></i> Assistente Pro</h3>
+            <p id="msg-assistente" style="font-size: 0.9rem; line-height: 1.6; margin: 20px 0;"></p>
+            <button class="btn-add" onclick="fecharAssistente()">Obrigado!</button>
         </div>
     </div>
 
     <div id="toast" class="toast-aviso"></div>
 
     <div class="container">
-        <div id="assistente-btn" class="assistente-bolha" onclick="abrirDicasAssistente()">
+        <header class="app-header">
+            <span class="logo-text" style="cursor:pointer">GESTOR PRO</span>
+            <button class="btn-theme" onclick="toggleTheme()"><i class="fas fa-adjust"></i></button>
+        </header>
+
+        <div id="alertas-vencimento"></div>
+
+        <div class="container-scroll">
+            
+            <div id="lancamentos" class="tab-content active">
+                <div class="stats-mini">
+                    <div><small>Saldo Conta</small><br><b id="saldo-topo">R$ 0,00</b></div>
+                    <div><small>Gastos (Mês)</small><br><b id="gastos-mes-topo" style="color: var(--danger)">R$ 0,00</b></div>
+                </div>
+
+                <h3>✍️ Novo Lançamento</h3>
+                <div class="form-container">
+                    <select id="categoria"></select>
+                    <input type="text" id="descricao" placeholder="Descrição">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="valor" placeholder="R$ 0,00" style="flex: 2;">
+                        <select id="tipo" style="flex: 1;">
+                            <option value="gasto">Saída</option>
+                            <option value="ganho">Entrada</option>
+                        </select>
+                    </div>
+
+                    <div class="date-selector">
+                        <button type="button" class="btn-date active" id="btn-hoje" onclick="definirData('hoje', this)">Hoje</button>
+                        <button type="button" class="btn-date" id="btn-ontem" onclick="definirData('ontem', this)">Ontem</button>
+                        <div class="input-calendar-wrapper">
+                            <input type="date" id="data" class="input-invisible">
+                            <button type="button" class="btn-date" onclick="abrirCalendario()"><i class="fas fa-calendar-alt"></i></button>
+                        </div>
+                    </div>
+
+                    <button id="btn-salvar" class="btn-add" onclick="adicionarTransacao()">Salvar Lançamento</button>
+                </div>
+
+                <h3 style="margin-top: 25px;">🕒 Histórico Recente</h3>
+                <div id="lista-historico"></div>
+            </div>
+
+            <div id="cartao" class="tab-content">
+                <h1 id="titulo-cartao">💳 Cartões</h1>
+                <div class="form-container" style="background: var(--glass); padding: 15px; border-radius: 20px;">
+                    <input type="text" id="nome-cartao" placeholder="Nome do Cartão">
+                    <input type="number" id="limite-cartao" placeholder="Limite">
+                    <input type="number" id="vencimento-cartao" placeholder="Dia Vencimento">
+                    <button id="btn-salvar-cartao" class="btn-add" onclick="adicionarNovoCartao()">Criar Cartão</button>
+                </div>
+                <div id="lista-cartoes-container" style="margin-top:20px;"></div>
+                <h3 style="margin-top:30px">🛍️ Compras Parceladas</h3>
+                <div class="form-container">
+                    <select id="select-cartao-compra"></select>
+                    <input type="text" id="desc-parcela" placeholder="Descrição da compra">
+                    <input type="number" id="valor-total-parcela" placeholder="Valor Total">
+                    <input type="number" id="qtd-parcelas" placeholder="Parcelas (Ex: 10)">
+                    <button class="btn-add" onclick="lancarCompraParcelada()">Lançar Parcelas</button>
+                </div>
+            </div>
+
+            <div id="cofrinhos" class="tab-content">
+                <h1>🐷 Cofrinhos</h1>
+                <div class="form-container" style="background: var(--glass); padding: 15px; border-radius: 20px;">
+                    <input type="text" id="nome-cofre" placeholder="Objetivo">
+                    <input type="number" id="meta-cofre" placeholder="Valor da Meta">
+                    <button class="btn-add" onclick="criarCofrinho()">Criar Objetivo</button>
+                </div>
+                <div id="lista-cofrinhos" style="margin-top: 20px;"></div>
+            </div>
+
+            <div id="relatorios" class="tab-content">
+                <h1>📊 Saúde Financeira</h1>
+                <div class="stats-mini">
+                    <div><small>Economia Real</small><br><b id="valor-economia">R$ 0,00</b></div>
+                    <div><small>% Cartão/Renda</small><br><b id="valor-comprometimento">0%</b></div>
+                </div>
+                <div class="chart-container"><canvas id="meuGrafico"></canvas></div>
+                <button class="btn-add" onclick="exportarPDF()" style="width: 100%; margin-top: 20px;">
+                    <i class="fas fa-file-pdf"></i> Exportar PDF
+                </button>
+            </div>
+
+            <div id="metas" class="tab-content">
+                <h1>⚙️ Ajustes</h1>
+                <div class="config-card">
+                    <label>Saldo Inicial em Conta:</label>
+                    <input type="number" id="inputSaldoInicial">
+                    <button class="btn-glass" onclick="salvarSaldoInicial()" style="width:100%; margin-top:10px">Atualizar Saldo</button>
+                </div>
+                <div class="config-card" style="margin-top: 20px;">
+                    <h3>💾 Backup</h3>
+                    <button class="btn-glass" onclick="gerarBackup()" style="width:100%; margin-bottom:10px">Copiar Código de Backup</button>
+                    <button class="btn-glass" onclick="restaurarBackup()" style="width:100%">Restaurar Dados</button>
+                </div>
+                <button class="btn-danger-action" onclick="limparDados()" style="width: 100%; margin-top: 20px;">Resetar Aplicativo</button>
+            </div>
+
+        </div>
+
+        <div class="assistente-bolha" onclick="abrirDicasAssistente()">
             <i class="fas fa-robot"></i>
         </div>
 
-        <div id="saldo-flutuante" class="floating-balance">
-            <small>Saldo Disponível</small>
-            <span id="valor-flutuante">R$ 0,00</span>
-        </div>
-
-        <nav class="abas">
-            <button class="tab-btn active" onclick="abrirAba('lancamentos', this)"><i class="fas fa-wallet"></i><br>Início</button>
-            <button class="tab-btn" onclick="abrirAba('cartao', this)"><i class="fas fa-credit-card"></i><br>Cartões</button>
-            <button class="tab-btn" onclick="abrirAba('relatorios', this)"><i class="fas fa-chart-pie"></i><br>Análise</button>
-            <button class="tab-btn" onclick="abrirAba('metas', this)"><i class="fas fa-sliders-h"></i><br>Ajustes</button>
+        <nav class="nav-bottom">
+            <button class="nav-item active" onclick="abrirAba('lancamentos', this)"><i class="fas fa-home"></i></button>
+            <button class="nav-item" onclick="abrirAba('cartao', this)"><i class="fas fa-credit-card"></i></button>
+            <button class="nav-item" onclick="abrirAba('cofrinhos', this)"><i class="fas fa-piggy-bank"></i></button>
+            <button class="nav-item" onclick="abrirAba('relatorios', this)"><i class="fas fa-chart-line"></i></button>
+            <button class="nav-item" onclick="abrirAba('metas', this)"><i class="fas fa-cog"></i></button>
         </nav>
-
-        <div id="lancamentos" class="tab-content active">
-            <h1 id="titulo-form">✍️ Lançamento</h1>
-            <div class="form-container">
-                <select id="categoria"></select>
-                <input type="text" id="descricao" placeholder="Descrição">
-                <div style="display: flex; gap: 10px;">
-                    <input type="number" id="valor" step="0.01" placeholder="R$ 0,00" style="flex: 2;">
-                    <select id="tipo" style="flex: 1;">
-                        <option value="gasto">Saída</option>
-                        <option value="ganho">Entrada</option>
-                    </select>
-                </div>
-                <input type="date" id="data">
-                <button id="btn-salvar" class="btn-add" onclick="adicionarTransacao()">Salvar</button>
-            </div>
-            <h3 style="margin-top: 30px;">🕒 Recentes</h3>
-            <div id="lista-historico" class="historico-lista"></div>
-        </div>
-
-        <div id="cartao" class="tab-content">
-            <h1>💳 Seus Cartões</h1>
-            <div class="config-card">
-                <h3>+ Novo Cartão</h3>
-                <input type="text" id="nome-cartao" placeholder="Nome (Ex: Nubank)">
-                <input type="number" id="limite-cartao" placeholder="Limite">
-                <button class="btn-add" style="margin-top:10px" onclick="adicionarNovoCartao()">Criar</button>
-            </div>
-            <div id="lista-cartoes-container" style="margin-top:20px;"></div>
-            
-            <h3 style="margin-top:30px">🛍️ Nova Compra Parcelada</h3>
-            <div class="form-container">
-                <select id="select-cartao-compra"></select>
-                <input type="text" id="desc-parcela" placeholder="O que comprou?">
-                <div style="display: flex; gap: 10px;">
-                    <input type="number" id="valor-total-parcela" placeholder="Total" style="flex: 1;">
-                    <input type="number" id="qtd-parcelas" placeholder="Vezes" style="flex: 1;">
-                </div>
-                <input type="date" id="data-primeira-parcela">
-                <button class="btn-add" onclick="lancarCompraParcelada()">Lançar Parcelas</button>
-            </div>
-        </div>
-
-        <div id="relatorios" class="tab-content">
-            <h1>📊 Relatórios</h1>
-            <div class="stats"><p>Saldo em Conta</p><span id="saldo-total">R$ 0,00</span></div>
-            <div class="chart-container"><canvas id="meuGrafico"></canvas></div>
-            <div id="progresso-metas"></div>
-            <div class="acoes">
-                <button class="btn-export" onclick="exportarCSV()">Exportar</button>
-                <button class="btn-clear" onclick="limparDados()">Resetar</button>
-            </div>
-        </div>
-
-        <div id="metas" class="tab-content">
-            <h1>⚙️ Ajustes</h1>
-            <div class="config-card">
-                <label>Saldo Inicial:</label>
-                <div style="display:flex; gap:10px; margin-top:10px">
-                    <input type="number" id="inputSaldoInicial" step="0.01" style="flex: 1;">
-                    <button class="btn-glass" onclick="salvarSaldoInicial()">Ok</button>
-                </div>
-            </div>
-            <h3 style="margin-top:30px">📁 Categorias com Emojis</h3>
-            <div class="form-container">
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="nova-cat-nome" placeholder="Ex: 🍔 Comida" style="flex: 1;">
-                    <button class="btn-add" onclick="adicionarNovaCategoria()" style="margin:0; width:50px;">+</button>
-                </div>
-                <div id="lista-categorias-editavel" style="margin-top:15px;"></div>
-            </div>
-            <h3 style="margin-top:30px">🎯 Definir Metas</h3>
-            <div id="lista-config-metas" class="form-container"></div>
-            <button class="btn-add" onclick="salvarMetas()">Gravar Metas</button>
-        </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
